@@ -1,3 +1,5 @@
+[![build and test](https://github.com/patelom864/nasdaq-itch-orderbook/actions/workflows/ci.yml/badge.svg)](https://github.com/patelom864/nasdaq-itch-orderbook/actions/workflows/ci.yml)
+
 # Low-Latency Order Book and NASDAQ ITCH 5.0 Feed Handler
 
 A C++20 feed handler and limit order book built against real NASDAQ TotalView-ITCH

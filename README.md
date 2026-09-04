@@ -30,6 +30,8 @@ Phase 1 (parser and message census): in progress.
     cmake --build build
     ctest --test-dir build --output-on-failure
 
+Note: core.hooksPath is per-clone and not stored in the repo so if you ever clone this somewhere else, run that one line again.
+
 ## Results
 
 See `BENCHMARKS.md`.

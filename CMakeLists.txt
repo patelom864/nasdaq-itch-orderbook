@@ -25,7 +25,11 @@ add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 add_library(itch
   src/message_table.cpp
   src/framer.cpp
+  src/mapped_file.cpp
 )
+add_executable(itch_count tools/itch_count.cpp)
+target_link_libraries(itch_count PRIVATE itch)
+
 target_include_directories(itch PUBLIC include)
 
 include(CTest)

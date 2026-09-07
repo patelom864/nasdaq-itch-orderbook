@@ -11,6 +11,7 @@ add_executable(itch_tests
   test_byte_reader.cpp
   test_messages.cpp
   test_framer.cpp
+  test_parser.cpp
 )
 target_link_libraries(itch_tests PRIVATE itch GTest::gtest_main)
 target_include_directories(itch_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

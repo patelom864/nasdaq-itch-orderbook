@@ -24,6 +24,7 @@ add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 
 add_library(itch
   src/message_table.cpp
+  src/framer.cpp
 )
 target_include_directories(itch PUBLIC include)
 

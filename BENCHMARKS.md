@@ -18,9 +18,7 @@ environment described below.
 
 ## Entries
 
-(none yet: Phase 1 does not benchmark anything)
-
-## 2026-09-07 — Phase 1: message census
+## 2026-09-08. Phase 1: message census
 
 Session: 01302019.NASDAQ_ITCH50 (full day), 11245883092 bytes
 Framed to last byte, exit 0. System events O S Q M E C.
@@ -34,6 +32,6 @@ Message mix:
   H  8805  (<0.01%)        R  8714  (<0.01%)         B  116  (<0.01%)
   J  62  (<0.01%)          S  6  (<0.01%)            V  1  (<0.01%)
 
-Cross-checked against tools/reference_count.py, an independent Python implementation written from the spec: per-type counts identical.
+Cross-checked against tools/reference_count.py, an independent Python implementation written from the spec. Per-type counts identical.
 
-No latency measured yet. Rough single-run throughput was 16334402 msg/s with no warm-up, no pinning and no percentiles; recorded only as a sanity figure and explicitly not a benchmark.
+No latency measured yet. Rough single-run throughput was 16334402 msg/s with no warm-up, no pinning, and no percentiles. Recorded only as a sanity figure and explicitly not a benchmark.

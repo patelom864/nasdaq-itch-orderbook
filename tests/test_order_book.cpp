@@ -129,4 +129,18 @@ TEST(OrderBook, ExecutedWithPriceDelegatesToTheEmbeddedExecuted) {
     EXPECT_TRUE(book.check_rep());
 }
 
+TEST(OrderBook, ReplaceMovesTheOrderToItsNewPriceAtTheBackOfTheQueue) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Buy, 100, 15000));
+    book.on(add(2, Side::Buy, 50, 15000));
+    book.on(OrderReplace{header('U', kLocate, 3), 1, 3, 80, 15050});
+
+    ASSERT_TRUE(book.best_bid().has_value());
+    EXPECT_EQ(book.best_bid()->price, 15050u);
+    EXPECT_EQ(book.best_bid()->shares, 80u);
+    EXPECT_EQ(book.order_count(), 2u);  // order 2 still at 15000, order 3 now at 15050
+    EXPECT_EQ(book.stats().replaces, 1u);
+    EXPECT_TRUE(book.check_rep());
+}
+
 }  // namespace

@@ -26,6 +26,7 @@ add_library(itch
   src/message_table.cpp
   src/framer.cpp
   src/mapped_file.cpp
+  src/order_book.cpp
 )
 add_executable(itch_count tools/itch_count.cpp)
 target_link_libraries(itch_count PRIVATE itch)

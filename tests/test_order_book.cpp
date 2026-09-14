@@ -84,4 +84,49 @@ TEST(OrderBook, AddOrderWithMpidDelegatesToThePlainAdd) {
     EXPECT_EQ(book.stats().adds, 1u);
 }
 
+TEST(OrderBook, CancelReducesSharesWithoutRemovingTheOrder) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Buy, 100, 15000));
+    book.on(OrderCancel{header('X', kLocate, 2), 1, 40});
+
+    ASSERT_TRUE(book.best_bid().has_value());
+    EXPECT_EQ(book.best_bid()->shares, 60u);
+    EXPECT_EQ(book.order_count(), 1u);
+    EXPECT_EQ(book.stats().cancels, 1u);
+    EXPECT_TRUE(book.check_rep());
+}
+
+TEST(OrderBook, DeleteRemovesTheOrderAndEmptiesTheLevel) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Buy, 100, 15000));
+    book.on(OrderDelete{header('D', kLocate, 2), 1});
+
+    EXPECT_FALSE(book.best_bid().has_value());
+    EXPECT_EQ(book.order_count(), 0u);
+    EXPECT_EQ(book.bid_level_count(), 0u);
+    EXPECT_EQ(book.stats().deletes, 1u);
+    EXPECT_TRUE(book.check_rep());
+}
+
+TEST(OrderBook, ExecutedReducesSharesLikeACancel) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Sell, 100, 15100));
+    book.on(OrderExecuted{header('E', kLocate, 2), 1, 30, 999});
+
+    ASSERT_TRUE(book.best_ask().has_value());
+    EXPECT_EQ(book.best_ask()->shares, 70u);
+    EXPECT_EQ(book.stats().executions, 1u);
+    EXPECT_TRUE(book.check_rep());
+}
+
+TEST(OrderBook, ExecutedWithPriceDelegatesToTheEmbeddedExecuted) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Sell, 100, 15100));
+    book.on(OrderExecutedWithPrice{OrderExecuted{header('C', kLocate, 2), 1, 100, 999}, 'Y', 15050});
+
+    EXPECT_FALSE(book.best_ask().has_value());
+    EXPECT_EQ(book.stats().executions, 1u);
+    EXPECT_TRUE(book.check_rep());
+}
+
 }  // namespace

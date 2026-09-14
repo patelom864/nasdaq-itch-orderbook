@@ -23,6 +23,7 @@ struct RecordingHandler {
     void on(const itch::OrderDelete&) { decoded.push_back('D'); }
     void on(const itch::OrderReplace&) { decoded.push_back('U'); }
     void on(const itch::TradeNonCross&) { decoded.push_back('P'); }
+    void on(const itch::StockDirectory&) { decoded.push_back('R'); }
     void on_other(char type, std::span<const std::byte>) { undecoded.push_back(type); }
 };
 
@@ -52,14 +53,19 @@ TEST(Parser, DispatchesEveryInScopeTypeAndDefersTheRest) {
        .ch('P').ch('N').ch('N').ch('1').ch('N').u32(0).ch('N');
       append(file, b.framed()); }
 
+    // Out of scope but defined: Stock Trading Action, 25 bytes.
+    { auto b = header('H', 1, 0, 1100); b.alpha("AAPL", 8).ch('T').ch(' ').alpha("    ", 4); append(file, b.framed()); }
+
+     
+
     RecordingHandler handler;
     const auto outcome = itch::parse_all(file, handler);
 
     ASSERT_TRUE(outcome.complete()) << itch::describe(*outcome.error);
     EXPECT_EQ(outcome.bytes_consumed, file.size());
-    EXPECT_EQ(outcome.messages, 10u);
-    EXPECT_EQ(handler.decoded, (std::vector<char>{'S', 'A', 'F', 'E', 'C', 'X', 'D', 'U', 'P'}));
-    EXPECT_EQ(handler.undecoded, (std::vector<char>{'R'}));
+    EXPECT_EQ(outcome.messages, 11u);
+    EXPECT_EQ(handler.decoded, (std::vector<char>{'S', 'A', 'F', 'E', 'C', 'X', 'D', 'U', 'P', 'R'}));
+    EXPECT_EQ(handler.undecoded, (std::vector<char>{'H'}));
 }
 
 }  // namespace

@@ -229,4 +229,52 @@ inline TradeNonCross decode_trade_non_cross(ByteReader reader) noexcept {
     };
 }
 
+// 'R', 39 bytes. Announces a symbol and assigns it the stock_locate code that
+// every other message for that symbol carries in its header for the rest of
+// the session. Locate codes are reassigned from scratch each trading day, so
+// a locate value is only meaningful within one session's messages.
+// 11 stock (8) | 19 market category (1) | 20 financial status (1)
+//   | 21 round lot size (4) | 25 round lots only (1) | 26 issue class (1)
+//   | 27 issue sub-type (2) | 29 authenticity (1) | 30 short sale threshold (1)
+//   | 31 IPO flag (1) | 32 LULD reference price tier (1) | 33 ETP flag (1)
+//   | 34 ETP leverage factor (4) | 38 inverse indicator (1)
+struct StockDirectory {
+    MessageHeader header;
+    Stock stock;
+    char market_category;
+    char financial_status_indicator;
+    std::uint32_t round_lot_size;
+    char round_lots_only;
+    char issue_classification;
+    std::array<char, 2> issue_sub_type;
+    char authenticity;
+    char short_sale_threshold_indicator;
+    char ipo_flag;
+    char luld_reference_price_tier;
+    char etp_flag;
+    std::uint32_t etp_leverage_factor;
+    char inverse_indicator;
+};
+
+inline StockDirectory decode_stock_directory(ByteReader reader) noexcept {
+    assert(reader.size() == spec_message_length('R'));
+    return StockDirectory{
+        .header = decode_header(reader),
+        .stock = reader.read_alpha<8>(11),
+        .market_category = reader.read_char(19),
+        .financial_status_indicator = reader.read_char(20),
+        .round_lot_size = reader.read_u32(21),
+        .round_lots_only = reader.read_char(25),
+        .issue_classification = reader.read_char(26),
+        .issue_sub_type = reader.read_alpha<2>(27),
+        .authenticity = reader.read_char(29),
+        .short_sale_threshold_indicator = reader.read_char(30),
+        .ipo_flag = reader.read_char(31),
+        .luld_reference_price_tier = reader.read_char(32),
+        .etp_flag = reader.read_char(33),
+        .etp_leverage_factor = reader.read_u32(34),
+        .inverse_indicator = reader.read_char(38),
+    };
+}
+
 }  // namespace itch

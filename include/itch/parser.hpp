@@ -24,6 +24,7 @@ concept MessageHandler = requires(H& handler,
                                   const OrderDelete& deletion,
                                   const OrderReplace& replace,
                                   const TradeNonCross& trade,
+                                  const StockDirectory& directory,
                                   char other_type,
                                   std::span<const std::byte> other_record) {
     handler.on(system_event);
@@ -35,6 +36,7 @@ concept MessageHandler = requires(H& handler,
     handler.on(deletion);
     handler.on(replace);
     handler.on(trade);
+    handler.on(directory);
     handler.on_other(other_type, other_record);
 };
 
@@ -59,6 +61,7 @@ FrameOutcome parse_all(std::span<const std::byte> file, H& handler) {
         case 'C': handler.on(decode_order_executed_with_price(reader)); break;
         case 'P': handler.on(decode_trade_non_cross(reader)); break;
         case 'S': handler.on(decode_system_event(reader)); break;
+        case 'R': handler.on(decode_stock_directory(reader)); break;
         default:  handler.on_other(type, record); break;
         }
     });

@@ -40,6 +40,7 @@ public:
     void on(const itch::OrderDelete& message) { note(message.header); }
     void on(const itch::OrderReplace& message) { note(message.header); }
     void on(const itch::TradeNonCross& message) { note(message.header); }
+    void on(const itch::StockDirectory& message) { note(message.header); }
 
     void on_other(char, std::span<const std::byte> record) {
         note(itch::decode_header(itch::ByteReader{record}));
@@ -203,4 +204,4 @@ int main(int argc, char** argv) {
         std::cerr << "itch_count: " << error.what() << '\n';
         return 2;
     }
-}
+} 

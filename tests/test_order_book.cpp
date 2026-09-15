@@ -143,4 +143,13 @@ TEST(OrderBook, ReplaceMovesTheOrderToItsNewPriceAtTheBackOfTheQueue) {
     EXPECT_TRUE(book.check_rep());
 }
 
+TEST(OrderBook, TradeNonCrossTalliesWithoutTouchingTheBook) {
+    OrderBook book = make_book();
+    book.on(add(1, Side::Buy, 100, 15000));
+    book.on(TradeNonCross{header('P', kLocate, 2), 9, Side::Buy, 100, {}, 15000, 555});
+
+    EXPECT_EQ(book.stats().trades, 1u);
+    EXPECT_EQ(book.best_bid()->shares, 100u);  // Unchanged: 'P' has no book effect.
+}
+
 }  // namespace

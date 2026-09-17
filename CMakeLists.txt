@@ -31,6 +31,9 @@ add_library(itch
 add_executable(itch_count tools/itch_count.cpp)
 target_link_libraries(itch_count PRIVATE itch)
 
+add_executable(book_replay tools/book_replay.cpp)
+target_link_libraries(book_replay PRIVATE itch)
+
 target_include_directories(itch PUBLIC include)
 
 include(CTest)

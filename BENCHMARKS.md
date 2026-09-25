@@ -35,3 +35,18 @@ Message mix:
 Cross-checked against tools/reference_count.py, an independent Python implementation written from the spec. Per-type counts identical.
 
 No latency measured yet. Rough single-run throughput was 16334402 msg/s with no warm-up, no pinning, and no percentiles. Recorded only as a sanity figure and explicitly not a benchmark.
+
+## 2026-09-25. Phase 2: single-symbol order book
+
+Session: 01302019.NASDAQ_ITCH50 (full day), AAPL
+
+book_replay:        locate <n>, adds <n>, executions <n>, cancels <n>,
+                     deletes <n>, replaces <n>, trades <n>,
+                     resting orders <n>, best bid <price> (<shares> shares),
+                     best ask <price> (<shares> shares)
+
+Cross-checked against tools/reference_book.py, an independent Python
+implementation written from the spec sharing no code with the C++ book.
+Every tally and the top of book were identical.
+
+No latency measured yet, that is Phase 3.

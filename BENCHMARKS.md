@@ -6,15 +6,21 @@ environment described below.
 
 ## Measurement environment
 
-- Machine: <fill in>
-- CPU: <fill in: `lscpu` model name, base/boost clock>
-- OS/kernel: <fill in: `uname -r`>
-- Compiler: <fill in: `g++-13 --version`>
-- Hardware performance counters: NOT AVAILABLE under WSL2 (no virtualized PMU).
-  Decision for Phase 3: <dual-boot | bare-metal cloud instance | cachegrind,
-  labelled as simulated>
-- Frequency scaling: <how it was controlled>
-- Core pinning: <how>
+Development and smoke tests run on a laptop under WSL2. Nothing measured there
+is recorded in this file. WSL2 has no PMU, no core isolation, Windows owns the
+CPU frequency, and its memory cap is smaller than a full session file.
+
+Every number below comes from a bare-metal AWS instance. tools/run_bench.sh
+saves the exact machine, kernel, compiler, tuning and commit next to the raw
+output in results/, and each entry points at its results directory.
+
+- Machine: AWS m5zn.metal (bare metal)
+- CPU: <fill in from env.txt>
+- OS/kernel: <fill in from env.txt>
+- Compiler: <fill in from env.txt>
+- Hardware performance counters: available on bare metal, read with perf_event_open
+- Frequency scaling: <fill in from env.txt: governor and turbo state>
+- Core pinning: <fill in from env.txt: isolated core and its sibling>
 
 ## Entries
 
@@ -40,10 +46,9 @@ No latency measured yet. Rough single-run throughput was 16334402 msg/s with no 
 
 Session: 01302019.NASDAQ_ITCH50 (full day), AAPL
 
-book_replay:        locate <n>, adds <n>, executions <n>, cancels <n>,
-                     deletes <n>, replaces <n>, trades <n>,
-                     resting orders <n>, best bid <price> (<shares> shares),
-                     best ask <price> (<shares> shares)
+book_replay:        locate 14, adds 752975, executions 89735, cancels 5900,
+                     deletes 685024, replaces 122963, trades 11703,
+                     resting orders 0, best bid none, best ask none
 
 Cross-checked against tools/reference_book.py, an independent Python
 implementation written from the spec sharing no code with the C++ book.

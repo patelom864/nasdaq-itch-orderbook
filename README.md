@@ -8,7 +8,7 @@ A C++20 feed handler and limit order book built against real NASDAQ TotalView-IT
 ## Status
 
 Phase 1 (parser and message census): complete. Phase 2 (order book): complete.
-Phase 3 (benchmarking): not started.
+Phase 3 (benchmarking): in progress.
 
 ## In scope
 

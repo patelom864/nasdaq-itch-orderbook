@@ -68,4 +68,21 @@ TEST(Parser, DispatchesEveryInScopeTypeAndDefersTheRest) {
     EXPECT_EQ(handler.undecoded, (std::vector<char>{'H'}));
 }
 
+TEST(Parser, DispatchRecordDecodesOneRecordWithoutFraming) {
+    // dispatch_record takes the record itself, so these are the message
+    // bytes with no length prefix in front of them.
+    RecordingHandler handler;
+
+    auto add = header('A', 1, 0, 200);
+    add.u64(1).ch('B').u32(100).alpha("AAPL", 8).u32(1650000);
+    itch::dispatch_record('A', add.bytes(), handler);
+
+    auto halt = header('H', 1, 0, 300);
+    halt.alpha("AAPL", 8).ch('T').ch(' ').alpha("    ", 4);
+    itch::dispatch_record('H', halt.bytes(), handler);
+
+    EXPECT_EQ(handler.decoded, (std::vector<char>{'A'}));
+    EXPECT_EQ(handler.undecoded, (std::vector<char>{'H'}));
+}
+
 }  // namespace

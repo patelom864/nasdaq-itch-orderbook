@@ -40,30 +40,43 @@ concept MessageHandler = requires(H& handler,
     handler.on_other(other_type, other_record);
 };
 
+// Decodes one record and delivers it to `handler`. parse_all calls this once
+// per record. It's its own function so the Phase 3 benchmark can time exactly
+// this step, dispatch plus decode, on the same code parse_all runs instead of
+// a copy of it.
+//
+// Precondition: `record` is one complete message of type `type` whose length
+// matches the specification, which is what frame_all guarantees for every
+// record it hands out.
+template <MessageHandler H>
+void dispatch_record(char type, std::span<const std::byte> record, H& handler) {
+    const ByteReader reader{record};
+
+    // Cases are written in descending order of frequency in a real session
+    // (adds, deletes and executes dominate). Whether that ordering matters
+    // at all is a Phase 3 measurement, not an assumption: the compiler is
+    // free to build a jump table and ignore it entirely.
+    switch (type) {
+    case 'A': handler.on(decode_add_order(reader)); break;
+    case 'D': handler.on(decode_order_delete(reader)); break;
+    case 'E': handler.on(decode_order_executed(reader)); break;
+    case 'X': handler.on(decode_order_cancel(reader)); break;
+    case 'U': handler.on(decode_order_replace(reader)); break;
+    case 'F': handler.on(decode_add_order_with_mpid(reader)); break;
+    case 'C': handler.on(decode_order_executed_with_price(reader)); break;
+    case 'P': handler.on(decode_trade_non_cross(reader)); break;
+    case 'S': handler.on(decode_system_event(reader)); break;
+    case 'R': handler.on(decode_stock_directory(reader)); break;
+    default:  handler.on_other(type, record); break;
+    }
+}
+
 // Frames `file`, decodes each in-scope message, and delivers it to `handler`.
 // Returns the framer's outcome unchanged. Never throws unless the handler does.
 template <MessageHandler H>
 FrameOutcome parse_all(std::span<const std::byte> file, H& handler) {
     return frame_all(file, [&handler](char type, std::span<const std::byte> record) {
-        const ByteReader reader{record};
-
-        // Cases are written in descending order of frequency in a real session
-        // (adds, deletes and executes dominate). Whether that ordering matters
-        // at all is a Phase 3 measurement, not an assumption: the compiler is
-        // free to build a jump table and ignore it entirely.
-        switch (type) {
-        case 'A': handler.on(decode_add_order(reader)); break;
-        case 'D': handler.on(decode_order_delete(reader)); break;
-        case 'E': handler.on(decode_order_executed(reader)); break;
-        case 'X': handler.on(decode_order_cancel(reader)); break;
-        case 'U': handler.on(decode_order_replace(reader)); break;
-        case 'F': handler.on(decode_add_order_with_mpid(reader)); break;
-        case 'C': handler.on(decode_order_executed_with_price(reader)); break;
-        case 'P': handler.on(decode_trade_non_cross(reader)); break;
-        case 'S': handler.on(decode_system_event(reader)); break;
-        case 'R': handler.on(decode_stock_directory(reader)); break;
-        default:  handler.on_other(type, record); break;
-        }
+        dispatch_record(type, record, handler);
     });
 }
 

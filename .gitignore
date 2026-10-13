@@ -4,4 +4,4 @@ data/
 *.ITCH50
 *.gz
 compile_commands.json
-.cache/
+.cache/.vibe-wise/
